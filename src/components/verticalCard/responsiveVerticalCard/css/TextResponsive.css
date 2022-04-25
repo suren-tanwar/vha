@@ -1,0 +1,27 @@
+
+
+
+
+
+  .button-div-res{
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    /* white-space: nowrap;
+    overflow: hidden; */
+    
+    }
+    .button-res{
+        background: #ff9900;
+        width: 350px;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+    
+    }
+    .button-res-text{
+        color: #FFFFFF;
+        font-weight: 600;
+      font-size: 25px;
+    
+    }

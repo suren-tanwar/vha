@@ -1,0 +1,78 @@
+.create-card{
+    width:100%;
+    height: 70px;
+    background: #FFFFFF;
+    box-shadow: 0px 7px 18px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    /* padding-left: 5%;
+    padding-right: 5%; */
+  }
+
+  
+@media screen and (max-width: 600px) {
+    .create-front-res{
+        display: flex;
+        justify-content: center;
+       align-items: center;
+      margin-top: 20px;
+    /* margin-left: 9%; */
+    padding: 8px;
+    width: 230px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0px 4px 34px rgba(0, 0, 0, 0.1);
+    border-radius: 90px;
+    margin-left: auto;
+    margin-right: auto;
+    }
+    
+    .create-new-front-res{
+    padding: 13px 20px;
+    background: #06AAB0;
+    border-radius: 90px;
+    margin-right:15px;
+    /* font-size: 16px; */
+    }
+    .create-new-text-front-res{
+        font-style: normal;
+        font-weight: 500;
+        font-size: 20px;
+   
+       color: #FFFFFF;
+    }
+    .choose-template-front-res{
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    }
+  }
+
+  .white-paper-res{
+    width:100%;
+    /* width: 750px; */
+    height: 560px;
+    background: #FFFFFF;
+    box-shadow: 0px 4px 34px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    border-radius: 7px;
+     white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .plus-button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color:#06AAB0;
+    padding:5px;
+    border-radius:90px;
+    width:60px;
+    height:60px;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+  

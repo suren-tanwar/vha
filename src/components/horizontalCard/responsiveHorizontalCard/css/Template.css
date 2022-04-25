@@ -1,0 +1,42 @@
+.wd-toolbar-main{
+    display: none;
+    }
+  
+@media screen and (max-width: 600px) {
+  
+    .wd-toolbar-main{
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 350;
+    display: flex;
+    align-items: center;
+    height: 70px;
+    background-color: black;
+    box-shadow: 2px 2px 12px rgb(0 0 0 / 12%);
+    overflow-y: scroll;
+ white-space: nowrap;
+    }
+ 
+    .icon-box-responsive-main{
+        display: flex;
+        flex-direction: column;
+       white-space: nowrap;
+      margin-right: 20px;
+
+    }
+    .icon-responsive-main{
+        margin-left: auto; 
+       margin-right: auto;
+        width:35px;
+        height:35px;
+        color:white;
+    }
+    .icon-text-responsive-main{
+        color:white;
+        font-size:20px; 
+        margin-left: auto;
+        margin-right: auto;
+    }
+  }

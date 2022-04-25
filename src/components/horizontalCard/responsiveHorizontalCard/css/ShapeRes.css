@@ -1,0 +1,13 @@
+.icon-box-res{
+    width: 46%;
+    height:100px;
+  background: #333333;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+  border-radius: 8px;
+  display: flex;
+justify-content: center;
+align-items: center;
+margin-top:10px;
+
+}
