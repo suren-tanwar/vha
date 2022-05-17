@@ -5,7 +5,7 @@ import Getstarted from "./components/Getstarted"
 import ChooseTemplate from "./components/ChooseTemplate"
 import Responsiveheader from './components/headers/Responsiveheader'
 import Header from './components/headers/Header'
-import HorizontalCard from "./components/horizontalCard/HorizontalCard"
+import  HorizontalCard   from "./components/horizontalCard/HorizontalCard"
 import BackHorizontalCard from './components/horizontalCard/BackHorizontalCard'
 import VerticalCard from "./components/verticalCard/VerticalCard"
 import BackVerticalCard from "./components/verticalCard/BackVerticalCard"
@@ -18,8 +18,8 @@ function App() {
 
     <div>
      <Router history={history}>
-    <div>
-    {window.screen.width > 600 ? <Header /> : ""}
+<div>
+ {window.screen.width > 600 ? <Header /> : ""}
  <Switch>
  <Route path = "/" exact component={Getstarted}/> 
  <Route path = "/choose-template" exact component={ChooseTemplate}/> 

@@ -1,0 +1,36 @@
+.edit-options {
+    height: 60px;
+    background-color: #fff;
+    box-shadow: 0px 2px 2px #ccc;
+    text-align: left;
+  }
+
+  .options-wrapper {
+    height: 60px;
+    overflow: auto;
+    display: flex;
+  }
+
+  .options-wrapper div {
+      position: relative;
+      display: inline-block;
+      height: 100%;
+      width: 60px;
+      flex-basis: 60px;
+      flex-grow: 0;
+      flex-shrink: 0;
+  }
+
+  .options-wrapper div svg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.options-wrapper div:hover {
+    cursor: pointer;
+    background-color: #eaeaea;
+}

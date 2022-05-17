@@ -1,0 +1,133 @@
+aside {
+  width: 105px;
+  height: 100vh;
+}
+
+.aside-expanded {
+  width: 420px;
+}
+
+.element-picker-tray {
+  width: 105px;
+  position: fixed;
+  height: 100vh;
+  background-color: #272727;
+  color: #969696;
+  overflow: hidden;
+  display: flex;
+}
+
+.element-picker-tray-expanded {
+  width: 420px;
+}
+
+.elements-ul-container {
+  background-color: #000;
+  flex: 25%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.element-picker-tray ul {
+  background-color: #272727;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.element-picker-tray li {
+  padding: 15px 0;
+}
+
+.element-picker-tray li:hover {
+  color: #f5f5f5;
+  cursor: pointer;
+}
+
+.element-unselected {
+  background-color: #000;
+}
+
+.element-selected {
+  color: #f5f5f5;
+  background-color: #272727;
+}
+
+.border-tr-radius-15 {
+  border-top-right-radius: 15px;
+}
+
+.border-br-radius-15 {
+  border-bottom-right-radius: 15px;
+}
+
+.items-tray {
+  flex: 75% 1;
+  background-color: #272727;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.collapse-btn {
+  background-color: #272727;
+  height: 80px;
+  width: 15px;
+  position: relative;
+  left: 100%;
+  color: white;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.collapse-btn:hover {
+  cursor: pointer;
+}
+
+.collapse-btn svg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px grey;
+  border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #7d7d7d;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #525252;
+}
+
+@media only screen and (max-width: 440px) {
+  .aside-expanded {
+    width: 95vw;
+  }
+  .element-picker-tray-expanded {
+    width: 95vw;
+  }
+}
+
+@media only screen and (max-width: 720px) {
+  aside {
+    z-index: 1;
+    position: absolute;
+  }
+}

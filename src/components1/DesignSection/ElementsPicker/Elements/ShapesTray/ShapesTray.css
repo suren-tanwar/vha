@@ -1,0 +1,18 @@
+.elements-tray {
+    display: flex;
+    flex-wrap: wrap;
+    color: #fff;
+}
+
+.elements-tray div {
+    width: 45%;
+    margin: 2.5%;
+}
+
+.elements-tray div:hover {
+    cursor: pointer;
+}
+
+.elements-tray svg {
+    width: 100% !important;
+}

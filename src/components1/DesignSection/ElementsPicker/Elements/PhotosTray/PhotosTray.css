@@ -1,0 +1,17 @@
+.photos-tray {
+    display: flex;
+    flex-wrap: wrap
+}
+
+.photos-tray div {
+    width: 45%;
+    margin: 2.5%;
+}
+
+.photos-tray div:hover {
+    cursor: pointer;
+}
+
+.photos-tray img {
+    width: 100%;
+}

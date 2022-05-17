@@ -605,7 +605,7 @@ export const Smarteo = ({  shapeProps,
 
 
 
-export const Transformtext = ({ shapeProps, isSelected, onSelect, onChange }) => {
+export const Transformtext = ({ shapeProps, isSelected, onSelect, onChange ,handleTextDblClick,index}) => {
   const shapeRef = React.useRef();
   const trRef = React.useRef();
 
@@ -620,12 +620,13 @@ export const Transformtext = ({ shapeProps, isSelected, onSelect, onChange }) =>
   return (
     <React.Fragment>
      <Text
+     ref={shapeRef}
+     {...shapeProps}
         text={shapeProps.textValue}
-        onClick={onSelect}
-        // onClick={() => onSelect(index)}
-        onTap={onSelect}
-        ref={shapeRef}
-        {...shapeProps}
+        onDblClick={e => handleTextDblClick(e, index)}
+        onClick={() =>  onSelect(index)}
+        // onClick={onSelect}
+        // onDblClick={e => handleTextDblClick()}
         draggable
         onDragEnd={(e) => {
           onChange({
