@@ -44,50 +44,42 @@ export class TemplateList extends Component {
 
 export default TemplateList
 
-
 // import useAppContext from '@/hooks/useAppContext'
-// import { useState } from 'react'
-// import { Scrollbars } from 'react-custom-scrollbars'
-// import { Input } from 'baseui/input'
-// import Icons from '@components/icons'
-// import { useHandlers } from '@scenify/sdk'
+// import api from '@/services/api'
+// import { useEffect } from 'react'
+// import Panels from './scenes/Editor/components/Panels'
+// import Editor from '@scenify/sdk'
 
 // function TemplateList() {
-//   const { templates } = useAppContext()
-//   const [value, setValue] = useState('')
-//   const handlers = useHandlers()
+//   const { setTemplates, setShapes } = useAppContext()
+
+//   useEffect(() => {
+//     api.getTemplates().then(templates => setTemplates(templates))
+//     api.getShapes().then(shapes => setShapes(shapes))
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, [])
+
 //   return (
-//     <div style={{ display: 'flex', height: '100%', flexDirection: 'column' }}>
-//       <div style={{ padding: '2rem 2rem' }}>
-//         <Input
-//           startEnhancer={() => <Icons.Search size={18} />}
-//           value={value}
-//           onChange={e => setValue((e.target as any).value)}
-//           placeholder="Search templates"
-//           clearOnEscape
-//         />
-//       </div>
-//       <div style={{ flex: 1 }}>
-//         <Scrollbars>
-//           <div
-//             style={{ display: 'grid', gap: '0.5rem', padding: '0 2rem 2rem', gridTemplateColumns: '1fr 1fr' }}
-//           >
-//             {templates.map(template => (
-//               <div
-//                 key={template.id}
-//                 style={{
-//                   alignItems: 'center',
-//                   cursor: 'pointer',
-//                   border: '1px solid rgba(0,0,0,0.2)',
-//                   padding: '5px',
-//                 }}
-//                 onClick={() => handlers.templateHandler.importTemplate(template)}
-//               >
-//                 <img width="100%" src={template.preview || 'https://via.placeholder.com/150'} alt="preview" />
-//               </div>
-//             ))}
+//     <div
+//       style={{
+//         width: '100vw',
+//         height: '100vh',
+//         display: 'flex',
+//         flexDirection: 'column',
+//         background: '#F9F9F9',
+//         fontFamily: 'Uber Move Text',
+//       }}
+//     >
+   
+//       <div style={{ display: 'flex', flex: 1 }}>
+//         <Panels />
+//         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+     
+//           <div style={{ flex: 1, display: 'flex', padding: '1px' }}>
+//             <Editor />
 //           </div>
-//         </Scrollbars>
+      
+//         </div>
 //       </div>
 //     </div>
 //   )

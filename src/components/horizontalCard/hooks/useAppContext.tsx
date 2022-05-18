@@ -1,4 +1,4 @@
-import { AppContext } from './AppContext'
+import { AppContext } from '@/contexts/AppContext'
 import { useContext } from 'react'
 
 function useAppContext() {

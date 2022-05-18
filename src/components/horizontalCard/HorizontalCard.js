@@ -7,7 +7,7 @@ import React, { Component } from 'react'
 import './HorizontalCard.css'
 import axios from "axios";
 import TemplateList from "./TemplateList"
-
+// import TransformerComponent from './TransformerComponent'
 import Template from "./responsiveHorizontalCard/Template"
 import  "./Image.css"
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
@@ -58,6 +58,63 @@ function downloadURI(uri, name) {
   document.body.removeChild(link);
 }
 
+class TransformerComponent extends React.Component {
+  componentDidMount() {
+    this.checkNode();
+  }
+  componentDidUpdate() {
+    this.checkNode();
+  }
+
+  onTransformStart(){
+    console.log('onTransformStart');
+  } 
+
+  onTransform(){
+    console.log('onTransform');
+  } 
+
+  onTransformEnd(){
+    console.log('end transform');
+
+}  
+checkNode() {
+    // here we need to manually attach or detach Transformer node
+    const stage = this.transformer.getStage();
+    const { selectedShapeName } = this.props;
+
+    var selectedNode = stage.findOne("." + selectedShapeName);
+    // do nothing if selected node is already attached
+    if (selectedNode === this.transformer.node()) {
+      return;
+    }
+    if (selectedNode) {
+      const type = selectedNode.getType();
+      if ( type != "Group") {
+        selectedNode = selectedNode.findAncestor("Group");
+      }
+      // attach to another node
+      this.transformer.attachTo(selectedNode);
+    } else {
+      // remove transformer
+      this.transformer.detach();
+    }
+
+    this.transformer.getLayer().batchDraw();
+  }
+  render() {
+    return (
+      <Transformer
+        ref={node => {
+          this.transformer = node;
+        }}
+        transformstart={this.onTransformStart}
+        transform={this.onTransform}
+        transformend={this.onTransformEnd}
+      />
+    );
+  }
+}
 export class HorizontalCard extends Component {
     constructor(props) {
       super(props)
@@ -66,6 +123,7 @@ export class HorizontalCard extends Component {
       this.trRef = React.createRef(null);
       this.groupRef = React.createRef(null);
      this.state = {
+      selectedShapeName: "",
       selectedId:{},
       fill: "black",
       textX: 0,
@@ -276,6 +334,41 @@ export class HorizontalCard extends Component {
          ]
       }
     }
+    handleStageMouseDown = e => {
+      console.log(e.target.getStage())
+      const clickedOnEmpty = e.target === e.target.getStage();
+ if (clickedOnEmpty) {
+        this.selectShape(null);
+      }
+
+
+      // clicked on stage - cler selection
+      if (e.target === e.target.getStage()) {
+        this.setState({
+          selectedShapeName: ""
+        });
+        return;
+      }
+      // clicked on transformer - do nothing
+      const clickedOnTransformer =
+        e.target.getParent().className === "Transformer";
+      if (clickedOnTransformer) {
+        return;
+      }
+  
+      // find clicked rect by its name
+      const name = e.target.name();
+      // const rect = this.state.rectangles.find(r => r.name === name);
+      if (name) {
+        this.setState({
+          selectedShapeName: name
+        });
+      } else {
+        this.setState({
+          selectedShapeName: ""
+        });
+      }
+    };
 
      handleExport = () => {
       const dataURL  = this.stageRef.current.toDataURL();
@@ -293,6 +386,7 @@ export class HorizontalCard extends Component {
       else this.setState({ selectedObject: this.state.arrayObjectsLayer[0] })
   
     }
+    
     // TEXT EDITOR FUNCTIONALITY
     handleTextDblClick = (e, index) => {
       const absPos = e.target.getAbsolutePosition();
@@ -555,7 +649,6 @@ export class HorizontalCard extends Component {
       let selectedObject = newCircleObj;
       arrayObjectsLayer.push(newCircleObj);
       saveHistory(arrayObjectsLayer)
-  
       this.setState({
         arrayObjectsLayer,
         selectedObject
@@ -1560,9 +1653,10 @@ onChange={this.changeOpacity}
  </div>
   <div className='input-class-smart'>
 <select className='text-field-smart' name='choose' value={this.state.choose} onChange={this.handleChangeSmart}>
-<option value="Firstname">First Name</option>
-<option value="LastName">Last Name</option>
-<option value="NickName">Nick Name</option>
+<option value="{Fname}">First Name</option>
+<option value="{Lname}">Last Name</option>
+<option value="{Nname}">Nick Name</option>
+<option value="{empId}">Employee Id</option>
 </select>
 <div className='smart-field-icon-right'>
 <AddSharpIcon  style={{color:"white"}}/>
@@ -1645,7 +1739,7 @@ onChange={this.changeOpacity}
 
 </div>
 
-<div onClick={()=>this.setState({arrayObjectsLayer: [],qremail:"",qrnumber:"",qrtext:"",qrurl:"",selectQr:""})} style={{display:"flex",justifyContent:"center",alignItems:"center",background: "#FC4646",width:"15%",cursor:"pointer"}}>
+<div onClick={()=>this.setState({arrayObjectsLayer: [],qremail:"",qrnumber:"",qrtext:"",qrurl:"",selectQr:"",choose:""})} style={{display:"flex",justifyContent:"center",alignItems:"center",background: "#FC4646",width:"15%",cursor:"pointer"}}>
 <DeleteForeverOutlinedIcon style={{color:"white"}}/>
 <span className='icon-navbar'>Delete Card</span>
 </div>
@@ -1673,30 +1767,55 @@ placeholder='Enter text' rows="6" cols="30"
 className='text-field-text'
 />
 * */}
+
+
 <Stage
   scaleY={1 / zoom}
   scaleX={1 / zoom}
   ref={this.stageRef}
   width={width}
   height={height}
-  onMouseDown={e => {
-    // deselect when clicked on empty area
-    console.log(e.target)
-    console.log(e.target.getStage())
-    const clickedOnEmpty = e.target === e.target.getStage();
-    if (clickedOnEmpty) {
-      this.selectShape(null);
-    }
-  }}
+  onMouseDown={this.handleStageMouseDown}
 >
 
 <Layer>
-<Text
-fontSize={30}
-draggable
-text={this.state.choose}
 
-/>
+          <Group
+            name="group"
+            x={225}
+            y={295}
+            width={110}
+            height={400}
+            fill="red"
+            draggable
+          >
+       
+          <Text
+              name="text"
+              fontSize={30}
+              fontFamily="Calibri"
+              fill="#555"
+              width={100}
+              padding={15}
+              align="center"
+              text={this.state.choose}
+            />
+            <Html divProps={{ style: { pointerEvents: "none" } }}>
+            <div style={{marginTop:20}}>
+            {this.state.selectQr === "0" && <QRCode value={this.state.qremail} size="90"/>}
+            {this.state.selectQr === "1" && <QRCode value={this.state.qremail} size="90"/>}
+            {this.state.selectQr === "2" && <QRCode value={this.state.qrtext} size="90"/>}  
+            {this.state.selectQr === "3" && <QRCode value={this.state.qrnumber} size="90"/>}  
+            {this.state.selectQr === "4" && <QRCode value={this.state.qrurl} size="90"/>}  
+            </div>
+            </Html>
+        </Group>
+          <TransformerComponent
+          selectedShapeName={this.state.selectedShapeName}
+        />   
+        
+  
+
 {/****** 
 {  
   
@@ -1875,20 +1994,9 @@ text={this.state.choose}
   }
   )
 }
-<Group ref={this.groupRef} draggable x={50} y={100}>
-<Html divProps={{ style: { pointerEvents: "none" } }}>
-<div style={{marginTop:60}}>
-{this.state.selectQr === "0" && <QRCode value={this.state.qremail} />}
- {this.state.selectQr === "1" && <QRCode value={this.state.qremail} />}
- {this.state.selectQr === "2" && <QRCode value={this.state.qrtext} />}  
- {this.state.selectQr === "3" && <QRCode value={this.state.qrnumber} />}  
- {this.state.selectQr === "4" && <QRCode value={this.state.qrurl} />}  
-   </div>
-</Html>
-<Rect width={280} height={300} fill="" />
-</Group>
-<Transformer ref={this.trRef} />
 
+
+ 
 
 
 
