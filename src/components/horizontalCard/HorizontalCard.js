@@ -1,7 +1,7 @@
-// handleChange = (e) => {
-//   console.log(e.target.value)
-//   this.setState({ word: this.state.word1.filter((get)=> e.target.value == get.id) });
-// };
+// // handleChange = (e) => {
+// //   console.log(e.target.value)
+// //   this.setState({ word: this.state.word1.filter((get)=> e.target.value == get.id) });
+// // };
 
 import React, { Component } from 'react'
 import './HorizontalCard.css'
@@ -104,7 +104,7 @@ export class HorizontalCard extends Component {
          backgroundOn: true,
          indexTextSelected: 0,
          zoom: 2,
-         selectQr : "1",
+         selectQr : "",
          qremail:"",
         qrtext:"",
         qrnumber:"",
@@ -660,6 +660,7 @@ export class HorizontalCard extends Component {
       formData.append('filename', `${Math.floor(Math.random() * 1000)}.png`)
       formData.append('totalfilesize', blob.size)
       formData.append('file', blob)
+      formData.append('details', JSON.stringify(this.state.arrayObjectsLayer))
       console.log(...formData)
       localStorage.setItem("formdata", blob);
       // fetch('http://localhost:5000/product', {
@@ -766,11 +767,33 @@ handleChange = (e) => {
     [e.target.name]: e.target.value,
   });
 };
+// handleTextEdit = (e, index) => {
+//   let { arrayObjectsLayer } = this.state;
+//   arrayObjectsLayer[index].textValue = e.target.value;
+//   saveHistory(arrayObjectsLayer)
+
+//   this.setState({
+//     arrayObjectsLayer,
+//   });
+// };
+// addNewText = () => {
+//   let { arrayObjectsLayer, newTextObj } = this.state;
+//   newTextObj.id = Math.round(Math.random() * 10000);
+//   arrayObjectsLayer.push(newTextObj);
+//   let selectedObject = newTextObj;
+//   saveHistory(arrayObjectsLayer)
+
+//   this.setState({
+//     arrayObjectsLayer, selectedObject,
+//     number:2
+//   });
+// };
 handleChangeSmart = (e) => {
   console.log(e.target.value)
   this.setState({
     [e.target.name]: e.target.value,
   });
+
 };
 
 saveEverything = async () => {
@@ -829,7 +852,7 @@ deleteSavedState = async () => {
 };
   render() {
     console.log( this.state.rectangles)
-    console.log(this.state)
+    console.log(this.state.choose)
       console.log(this.state.arrayObjectsLayer)
      console.log(this.state.newTextObj)
       console.log(this.state.selectedObject)
@@ -1397,7 +1420,7 @@ onChange={this.changeOpacity}
    {this.state.number === 4 &&
     <div className='qr-editor-start'>
     <div className='qr-delete-box'>
-    <span style={{color:"#06A8AE"}}>QR Code</span>
+    <span style={{color:"#06A8AE"}} onClick={()=>this.setState({selectQr:"0"})}>QR Code</span>
     <div className='delete-button-qr'>
     <DeleteForeverOutlinedIcon style={{color:"red"}}/>
     <span style={{color:"#ffffff"}}>Delete</span>
@@ -1622,7 +1645,7 @@ onChange={this.changeOpacity}
 
 </div>
 
-<div onClick={()=>this.setState({arrayObjectsLayer: []})} style={{display:"flex",justifyContent:"center",alignItems:"center",background: "#FC4646",width:"15%",cursor:"pointer"}}>
+<div onClick={()=>this.setState({arrayObjectsLayer: [],qremail:"",qrnumber:"",qrtext:"",qrurl:"",selectQr:""})} style={{display:"flex",justifyContent:"center",alignItems:"center",background: "#FC4646",width:"15%",cursor:"pointer"}}>
 <DeleteForeverOutlinedIcon style={{color:"white"}}/>
 <span className='icon-navbar'>Delete Card</span>
 </div>
@@ -1668,7 +1691,12 @@ className='text-field-text'
 >
 
 <Layer>
+<Text
+fontSize={30}
+draggable
+text={this.state.choose}
 
+/>
 {/****** 
 {  
   
@@ -1847,7 +1875,21 @@ className='text-field-text'
   }
   )
 }
- 
+<Group ref={this.groupRef} draggable x={50} y={100}>
+<Html divProps={{ style: { pointerEvents: "none" } }}>
+<div style={{marginTop:60}}>
+{this.state.selectQr === "0" && <QRCode value={this.state.qremail} />}
+ {this.state.selectQr === "1" && <QRCode value={this.state.qremail} />}
+ {this.state.selectQr === "2" && <QRCode value={this.state.qrtext} />}  
+ {this.state.selectQr === "3" && <QRCode value={this.state.qrnumber} />}  
+ {this.state.selectQr === "4" && <QRCode value={this.state.qrurl} />}  
+   </div>
+</Html>
+<Rect width={280} height={300} fill="" />
+</Group>
+<Transformer ref={this.trRef} />
+
+
 
 
  {/*********
@@ -1893,106 +1935,7 @@ className='text-field-text'
 
 export default HorizontalCard
 
-// import React from 'react';
-// import { Group, Text } from 'react-konva';
-// import  TextEditor  from './text-editor';
-// import Konva from 'konva';
 
-//  const HorizontalCard = ({ text, onChange, ...props }) => {
-//   const [editorEnabled, setEditorEnabled] = React.useState(false);
-//   const textRef = React.useRef();
-//   // const textRef = React.useRef<Konva.Text>();
-
-//   return (
-
-//     <Group draggable>
-//       <Text
-//         text="helllllo"
-//         // text={text}
-//         ref={textRef}
-//         width={100}
-//         onClick={() => {
-//           setEditorEnabled(true);
-//         }}
-//         visible={!editorEnabled}
-//         {...props}
-//       />
-//       {editorEnabled && (
-//         <Group>
-//           <TextEditor
-//             value={text}
-//             // text="helllllo"
-//             textNodeRef={textRef}
-//             onChange={onChange}
-//             onBlur={() => {
-//               setEditorEnabled(false);
-//             }}
-//           />
-//         </Group>
-//       )}
-//     </Group>
-//   );
-// };
-// export default HorizontalCard
-
-
-// import React, { Component } from 'react'
-// import { Group, Stage, Text,Layer } from 'react-konva';
-// // import  TextEditor  from './text-editor';
-// import { Html } from 'react-konva-utils'
-
-// export class HorizontalCard extends Component {
-//   constructor(props) {
-//     super(props)
-//     this.textRef = React.createRef();
-//     this.groupRef = React.createRef(null);
-//     this.state = {
-//       editorEnabled:false,
-//       text:"helllllo"
-//     }
-//   }
-//   onChange = (e) => {
-//   this.setState({
-//     [e.target.name]: e.target.value,
-//   });
-// };
-//   render() {
-//     console.log(this.state)
-//     return (
-//       <div>
-//      <Stage>
-//      <Layer>
-//      <Text
-//      ref={this.textRef}
-//      text={this.state.text}
-//      width={100}
-//      onClick={() => this.setState({editorEnabled : true})}
-//     //  visible={!this.state.editorEnabled}
-//    />
-//      <Group ref={this.groupRef} draggable x={50} y={100}>
-//       <Html divProps={{  }}>
-//          <textarea className="polotno-input"
-//             style={{position: "absolute",top:100,left:100,width: 100,height: 100,fontSize: 28,color: "black",  }}
-//              type="text"
-//              name='text'
-//             value={this.state.text}
-//           //  textNodeRef={this.textRef}
-//            onChange={(e) => this.onChange(e)}
-//            onBlur={() => this.setState({editorEnabled : false})}
-//          />
-//        </Html>
-//        </Group>
-//    </Layer>
-//    </Stage>
-
-      
-      
-//       </div>
-//     )
-//   }
-// }
-
-// export default HorizontalCard
 
 
 
