@@ -1,13 +1,15 @@
-// handleChange = (e) => {
-//   console.log(e.target.value)
-//   this.setState({ word: this.state.word1.filter((get)=> e.target.value == get.id) });
-// };
+// // handleChange = (e) => {
+// //   console.log(e.target.value)
+// //   this.setState({ word: this.state.word1.filter((get)=> e.target.value == get.id) });
+// // };
 
 import React, { Component } from 'react'
 import './HorizontalCard.css'
+import axios from "axios";
 
-import TemplateList from "./TemplateList"
+import TemplateList from "./TemplateList.tsx"
 
+// import TransformerComponent from './TransformerComponent'
 import Template from "./responsiveHorizontalCard/Template"
 import  "./Image.css"
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
@@ -22,13 +24,13 @@ import Crop169Icon from '@mui/icons-material/Crop169';
 import CropPortraitIcon from '@mui/icons-material/CropPortrait';
 import Slider from '@mui/material/Slider';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { Stage, Layer,Group, Rect, Transformer } from "react-konva";
+import { Stage, Layer,Group, Rect, Transformer,Image,Text} from "react-konva";
 import Konva from "konva";
 import ColorPickerPalette from './ColorPickerPalette'
 import { CirclePicker } from 'react-color'
 import { DropImage } from "./DropImage";
 import Draggable from 'react-draggable'
-import {Retangulo,Triangulo,Texto,Circulo,Imagem,Background,Squareo,Lineo,Arrowo} from "./Formas";
+import {Retangulo,Triangulo,Texto,Circulo,Imagem,Background,Squareo,Lineo,Arrowo,Transformtext} from "./Formas";
 import QRCode from 'react-qr-code'
 import { Html } from 'react-konva-utils'
 
@@ -46,6 +48,73 @@ function saveHistory(history) {
 function revertHistory() {
   return HISTORY[POSITION]
 }
+function downloadURI(uri, name) {
+  var link = document.createElement('a');
+  link.download = name;
+  link.href = uri;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+
+class TransformerComponent extends React.Component {
+  componentDidMount() {
+    this.checkNode();
+  }
+  componentDidUpdate() {
+    this.checkNode();
+  }
+
+  onTransformStart(){
+    console.log('onTransformStart');
+  } 
+
+  onTransform(){
+    console.log('onTransform');
+  } 
+
+  onTransformEnd(){
+    console.log('end transform');
+
+}  
+checkNode() {
+    // here we need to manually attach or detach Transformer node
+    const stage = this.transformer.getStage();
+    const { selectedShapeName } = this.props;
+
+    var selectedNode = stage.findOne("." + selectedShapeName);
+    // do nothing if selected node is already attached
+    if (selectedNode === this.transformer.node()) {
+      return;
+    }
+    if (selectedNode) {
+      const type = selectedNode.getType();
+      if ( type != "Group") {
+        selectedNode = selectedNode.findAncestor("Group");
+      }
+      // attach to another node
+      this.transformer.attachTo(selectedNode);
+    } else {
+      // remove transformer
+      this.transformer.detach();
+    }
+
+    this.transformer.getLayer().batchDraw();
+  }
+  render() {
+    return (
+      <Transformer
+        ref={node => {
+          this.transformer = node;
+        }}
+        transformstart={this.onTransformStart}
+        transform={this.onTransform}
+        transformend={this.onTransformEnd}
+      />
+    );
+  }
+}
 
 
 export class BackHorizontalCard extends Component {
@@ -56,9 +125,33 @@ export class BackHorizontalCard extends Component {
       this.trRef = React.createRef(null);
       this.groupRef = React.createRef(null);
      this.state = {
+      selectedShapeName: "",
+      selectedId:{},
+      fill: "black",
+      textX: 0,
+      textY: 0,
+      textYTextArea: 0,
+      textXTextArea: 0,
+      textValue: "Two clicks to edit1",
+      fontSize: 28,
+      width: 250,
+      y: 100,
+      x: 100,
+      height: 150,
+      fontStyle: "normal",
+      align: "left",
+      id: 0,
+      type: 'text',
+      opacity: 1,
+      offsetY:0,
+      offsetX:0,
+      textTransform:"lowercase",
+       newData:[],
+       bg:`https://www.google.com/url?sa=i&url=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fview&psig=AOvVaw2xsxwNQA-WF5qPtK8JIzHl&ust=1650098942557000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCPCkrNzXlfcCFQAAAAAdAAAAABAD`,
+       qr:false,
        new:true,
        choose:"",
-         number:6,
+         number:2,
          arrayObjectsLayer: [],
          family:["Tahoma","Verdana","Georgia","Times New Roman","Arial","Helvetica","Impact","Courier New","serif","sans-serif","cursive","fantasy","monospace"],
          kanvasWidth: 18.9,
@@ -71,12 +164,46 @@ export class BackHorizontalCard extends Component {
          backgroundOn: true,
          indexTextSelected: 0,
          zoom: 2,
-         selectQr : "1",
+         selectQr : "",
          qremail:"",
         qrtext:"",
         qrnumber:"",
         qrurl:"",
          imgBase64: undefined,
+        rectangles: 
+          [
+            {
+              textX: 0,
+                fill: "black",
+                textY: 0,
+                textValue: "double click to edit and enter to finish",
+                fontSize: 30,
+                width: 400,
+                fontStyle: "normal",
+                align: "left",
+                id:"1",
+                offsetY:0,
+                offsetX:0,
+                textYTextArea: 0,
+                textXTextArea: 0,
+            },
+            {
+              textX: 0,
+                fill: "black",
+                textY: 0,
+                textValue: "double cl",
+                fontSize: 30,
+                width: 400,
+                fontStyle: "normal",
+                align: "left",
+                id:"2",
+                offsetY:0,
+                offsetX:0,
+                textYTextArea: 0,
+                textXTextArea: 0,
+            }
+              ],
+        
          newTextObj: {
            textEditVisible: true,
            fill: "black",
@@ -209,6 +336,48 @@ export class BackHorizontalCard extends Component {
          ]
       }
     }
+    handleStageMouseDown = e => {
+      console.log(e.target.getStage())
+      const clickedOnEmpty = e.target === e.target.getStage();
+ if (clickedOnEmpty) {
+        this.selectShape(null);
+      }
+
+
+      // clicked on stage - cler selection
+      if (e.target === e.target.getStage()) {
+        this.setState({
+          selectedShapeName: ""
+        });
+        return;
+      }
+      // clicked on transformer - do nothing
+      const clickedOnTransformer =
+        e.target.getParent().className === "Transformer";
+      if (clickedOnTransformer) {
+        return;
+      }
+  
+      // find clicked rect by its name
+      const name = e.target.name();
+      // const rect = this.state.rectangles.find(r => r.name === name);
+      if (name) {
+        this.setState({
+          selectedShapeName: name
+        });
+      } else {
+        this.setState({
+          selectedShapeName: ""
+        });
+      }
+    };
+
+     handleExport = () => {
+      const dataURL  = this.stageRef.current.toDataURL();
+      console.log(dataURL);
+      downloadURI(dataURL, 'stage.png');
+     }
+
     async componentDidMount() {
       console.log("Called when component did mount ", this.trRef);
       console.log("Called when component did mount1 ", this.trRef.current.nodes([this.groupRef.current])); 
@@ -580,6 +749,7 @@ export class BackHorizontalCard extends Component {
       formData.append('totalfilesize', blob.size)
       formData.append('file', blob)
   console.log(...formData)
+  localStorage.setItem("formdata", blob);
       // fetch(process.env.REACT_APP_IMAGE_UPLOAD, {
       //   method: 'POST',
       //   body: formData
@@ -686,13 +856,69 @@ handleChangeSmart = (e) => {
   });
 };
 
+saveEverything = async () => {
+  // const result = JSON.stringify(this.state.arrayObjectsLayer);
+  // console.log(result)
+  await localStorage.setItem("stateSaved", JSON.stringify(this.state.arrayObjectsLayer));
+};
+
+deleteSavedState = async () => {
+  console.log("clicked")
+  await localStorage.removeItem("stateSaved");
+  const state = await localStorage.getItem("defaultState");
+  if (state) this.setState(JSON.parse(state));
+};
+
+  // -------------------------------------------------------TEXT EDITOR FUNCTIONALITY
+  handleTextClick = (e, index) => {
+    console.log('selecttext')
+    const absPos = e.target.getAbsolutePosition();
+    const stageBox = this.stageRef.current.container().getBoundingClientRect();
+    let { rectangles } = this.state;
+    rectangles[index].textXTextArea =(stageBox.left + absPos.x + this.containerCanvas.current.scrollLeft) / this.state.zoom;
+    rectangles[index].textYTextArea =stageBox.bottom + absPos.y - stageBox.height + 40 + this.containerCanvas.current.scrollTop;
+    this.setState({
+      rectangles,
+    });
+  };
+  selectText = (selectedId, index = undefined) => {
+    console.log('selecttext')
+    let { rectangles, indexTextSelected } = this.state;
+   if (index) {
+      indexTextSelected = index - 1;
+   } else {
+      if (rectangles[indexTextSelected]) {
+        indexTextSelected = undefined;
+      }
+    }
+    this.setState({
+      selectedId,
+      rectangles,
+      indexTextSelected,
+    });
+  };
+
+  setTextObject = rectangles => {
+    this.setState({
+     rectangles,
+   });
+ };
+ handleTempEdit = (e, index) => {
+  let { rectangles } = this.state;
+  rectangles[index].textValue = e.target.value;
+ this.setState({
+    rectangles,
+  });
+};
   render() {
-    console.log(this.state)
+    console.log( this.state.rectangles)
+    console.log(this.state.choose)
       console.log(this.state.arrayObjectsLayer)
-      console.log(this.state.arrayObjectsLayer.item)
-      console.log(this.state.newTextObj.textValue)
-      const {selectedObject, arrayObjectsLayer, indexTextSelected, showPallet, widthKanvas, heightKanvas, backgroundOn, showBackground,zoom } = this.state;
-      const width = (widthKanvas) / zoom// cm to pixel
+     console.log(this.state.newTextObj)
+      console.log(this.state.selectedObject)
+      console.log(this.state.newData)
+      const {selectedObject, arrayObjectsLayer, indexTextSelected, showPallet, widthKanvas, heightKanvas, backgroundOn, showBackground,zoom ,selectedId} = this.state;
+       const width = (widthKanvas) / zoom// cm to pixel
       const height = (heightKanvas) / zoom// cm to pixel
   
       const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
@@ -778,7 +1004,7 @@ handleChangeSmart = (e) => {
        }
       </div>
        
-        <div  className="icon-box-1"  onClick={()=>this.setState({number:7})}>
+      <div  className="icon-box-1"  onClick={()=>this.handleExport()}>
         <div style={{textAlign:"center",backgroundColor:"#FF9900",padding:7,borderRadius:90}}>
         <img src="/images/download.png" style={{width:25,height:25}}/>
         </div>
@@ -1222,7 +1448,7 @@ onChange={this.changeOpacity}
 
   <div className='image-delete-box'>
   <span style={{color:"#06A8AE"}}>Image</span>
-  <div className='delete-button-image'>
+  <div className='delete-button-image' onClick={()=>this.setState({selectedObject:""})}>
   <DeleteForeverOutlinedIcon style={{color:"red"}}/>
   <span style={{color:"#ffffff"}}>Delete</span>
   </div>
@@ -1255,7 +1481,7 @@ onChange={this.changeOpacity}
    {this.state.number === 4 &&
     <div className='qr-editor-start'>
     <div className='qr-delete-box'>
-    <span style={{color:"#06A8AE"}}>QR Code</span>
+    <span style={{color:"#06A8AE"}} onClick={()=>this.setState({selectQr:"0"})}>QR Code</span>
     <div className='delete-button-qr'>
     <DeleteForeverOutlinedIcon style={{color:"red"}}/>
     <span style={{color:"#ffffff"}}>Delete</span>
@@ -1394,11 +1620,12 @@ onChange={this.changeOpacity}
  </div>
  </div>
   <div className='input-class-smart'>
-<select className='text-field-smart' name='choose' value={this.state.choose} onChange={this.handleChangeSmart}>
-<option value="Firstname">First Name</option>
-<option value="LastName">Last Name</option>
-<option value="NickName">Nick Name</option>
-</select>
+  <select className='text-field-smart' name='choose' value={this.state.choose} onChange={this.handleChangeSmart}>
+  <option value="{Fname}">First Name</option>
+  <option value="{Lname}">Last Name</option>
+  <option value="{Nname}">Nick Name</option>
+  <option value="{empId}">Employee Id</option>
+  </select>
 <div className='smart-field-icon-right'>
 <AddSharpIcon  style={{color:"white"}}/>
 </div>
@@ -1480,7 +1707,7 @@ onChange={this.changeOpacity}
 
 </div>
 
-<div onClick={()=>this.setState({arrayObjectsLayer: []})} style={{display:"flex",justifyContent:"center",alignItems:"center",background: "#FC4646",width:"15%",cursor:"pointer"}}>
+<div onClick={()=>this.setState({arrayObjectsLayer: [],qremail:"",qrnumber:"",qrtext:"",qrurl:"",selectQr:"",choose:""})} style={{display:"flex",justifyContent:"center",alignItems:"center",background: "#FC4646",width:"15%",cursor:"pointer"}}>
 <DeleteForeverOutlinedIcon style={{color:"white"}}/>
 <span className='icon-navbar'>Delete Card</span>
 </div>
@@ -1504,18 +1731,44 @@ onChange={this.changeOpacity}
   ref={this.stageRef}
   width={width}
   height={height}
-  onMouseDown={e => {
-    // deselect when clicked on empty area
-    console.log(e.target)
-    console.log(e.target.getStage())
-    const clickedOnEmpty = e.target === e.target.getStage();
-    if (clickedOnEmpty) {
-      this.selectShape(null);
-    }
-  }}
+  onMouseDown={this.handleStageMouseDown}
 >
 
 <Layer>
+<Group
+name="group"
+x={225}
+y={295}
+width={110}
+height={400}
+fill="red"
+draggable
+>
+
+<Text
+  name="text"
+  fontSize={30}
+  fontFamily="Calibri"
+  fill="#555"
+  width={100}
+  padding={15}
+  align="center"
+  text={this.state.choose}
+/>
+<Html divProps={{ style: { pointerEvents: "none" } }}>
+<div style={{marginTop:20}}>
+{this.state.selectQr === "0" && <QRCode value={this.state.qremail} size="90"/>}
+{this.state.selectQr === "1" && <QRCode value={this.state.qremail} size="90"/>}
+{this.state.selectQr === "2" && <QRCode value={this.state.qrtext} size="90"/>}  
+{this.state.selectQr === "3" && <QRCode value={this.state.qrnumber} size="90"/>}  
+{this.state.selectQr === "4" && <QRCode value={this.state.qrurl} size="90"/>}  
+</div>
+</Html>
+</Group>
+<TransformerComponent
+selectedShapeName={this.state.selectedShapeName}
+/>   
+
 {
   arrayObjectsLayer &&
   arrayObjectsLayer.map((item, index) => {

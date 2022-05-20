@@ -6,7 +6,9 @@
 import React, { Component } from 'react'
 import './HorizontalCard.css'
 import axios from "axios";
-import TemplateList from "./TemplateList"
+
+import TemplateList from "./TemplateList.tsx"
+
 // import TransformerComponent from './TransformerComponent'
 import Template from "./responsiveHorizontalCard/Template"
 import  "./Image.css"
@@ -31,7 +33,7 @@ import Draggable from 'react-draggable'
 import {Retangulo,Triangulo,Texto,Circulo,Imagem,Background,Squareo,Lineo,Arrowo,Transformtext} from "./Formas";
 import QRCode from 'react-qr-code'
 import { Html } from 'react-konva-utils'
-import TextEditor from './text-editor'
+
 
 
 var HISTORY = []
@@ -334,6 +336,17 @@ export class HorizontalCard extends Component {
          ]
       }
     }
+    //  handleSave = async () => {
+    //   if (handlers) {
+    //     setSaving(true)
+    //     const exportedTemplate = handlers.templateHandler.exportTemplate()
+    //     const savedTemplate = await api.createTemplate(exportedTemplate)
+    //     setTemplates([...templates, savedTemplate])
+    //     setSaving(false)
+    //   }
+    // }
+
+
     handleStageMouseDown = e => {
       console.log(e.target.getStage())
       const clickedOnEmpty = e.target === e.target.getStage();
@@ -760,23 +773,23 @@ export class HorizontalCard extends Component {
       //   method: 'POST',
       //   body:JSON.stringify(formData)
       // })
-       axios.post(`http://localhost:5000/product`,formData,{ headers: { 'Content-Type':'application/x-www-form-urlencoded'} })
-       console.log(formData)
-       .then(response => 
-          console.log(response))
-          // response.json())s
-        .then(function (json) {
+      //  axios.post(`http://localhost:5000/product`,formData,{ headers: { 'Content-Type':'application/x-www-form-urlencoded'} })
+      //  console.log(formData)
+      //  .then(response => 
+      //     console.log(response))
+      //     // response.json())s
+      //   .then(function (json) {
         //   console.log(json)
         //   if (json.success) {
         //     setTimeout(() => {
         //       window.open(json.files[0].url, "_blank")
         //     }, 500);
         //   }
-        },
-          error => {
-            return error;
-          }
-        )
+        // },
+        //   error => {
+        //     return error;
+        //   }
+        // )
    }
 //--------------COLOR  
 tooglePallet = () => {

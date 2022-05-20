@@ -1,10 +1,12 @@
-
-
 import React, { Component } from 'react'
 // import './HorizontalCard.css'
+import axios from "axios";
 
 import TemplateList from "./TemplateList"
 import Template from "./responsiveVerticalCard/Template"
+
+// import TransformerComponent from './TransformerComponent'
+
 import  "./Image.css"
 import DeleteForeverOutlinedIcon from '@mui/icons-material/DeleteForeverOutlined';
 import AddSharpIcon from '@mui/icons-material/AddSharp';
@@ -18,15 +20,17 @@ import Crop169Icon from '@mui/icons-material/Crop169';
 import CropPortraitIcon from '@mui/icons-material/CropPortrait';
 import Slider from '@mui/material/Slider';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import { Stage, Layer,Group, Rect, Transformer } from "react-konva";
+import { Stage, Layer,Group, Rect, Transformer,Image,Text} from "react-konva";
 import Konva from "konva";
 import ColorPickerPalette from './ColorPickerPalette'
 import { CirclePicker } from 'react-color'
 import { DropImage } from "./DropImage";
 import Draggable from 'react-draggable'
-import {Retangulo,Triangulo,Texto,Circulo,Imagem,Background,Squareo,Lineo,Arrowo} from "./Formas";
+import {Retangulo,Triangulo,Texto,Circulo,Imagem,Background,Squareo,Lineo,Arrowo,Transformtext} from "./Formas";
 import QRCode from 'react-qr-code'
 import { Html } from 'react-konva-utils'
+
+
 
 var HISTORY = []
 
@@ -43,7 +47,72 @@ function revertHistory() {
   return HISTORY[POSITION]
 }
 
+function downloadURI(uri, name) {
+  var link = document.createElement('a');
+  link.download = name;
+  link.href = uri;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
 
+class TransformerComponent extends React.Component {
+  componentDidMount() {
+    this.checkNode();
+  }
+  componentDidUpdate() {
+    this.checkNode();
+  }
+
+  onTransformStart(){
+    console.log('onTransformStart');
+  } 
+
+  onTransform(){
+    console.log('onTransform');
+  } 
+
+  onTransformEnd(){
+    console.log('end transform');
+
+}  
+checkNode() {
+    // here we need to manually attach or detach Transformer node
+    const stage = this.transformer.getStage();
+    const { selectedShapeName } = this.props;
+
+    var selectedNode = stage.findOne("." + selectedShapeName);
+    // do nothing if selected node is already attached
+    if (selectedNode === this.transformer.node()) {
+      return;
+    }
+    if (selectedNode) {
+      const type = selectedNode.getType();
+      if ( type != "Group") {
+        selectedNode = selectedNode.findAncestor("Group");
+      }
+      // attach to another node
+      this.transformer.attachTo(selectedNode);
+    } else {
+      // remove transformer
+      this.transformer.detach();
+    }
+
+    this.transformer.getLayer().batchDraw();
+  }
+  render() {
+    return (
+      <Transformer
+        ref={node => {
+          this.transformer = node;
+        }}
+        transformstart={this.onTransformStart}
+        transform={this.onTransform}
+        transformend={this.onTransformEnd}
+      />
+    );
+  }
+}
 export class VerticalCard extends Component {
     constructor(props) {
       super(props)
@@ -52,9 +121,33 @@ export class VerticalCard extends Component {
       this.trRef = React.createRef(null);
       this.groupRef = React.createRef(null);
      this.state = {
+      selectedShapeName: "",
+      selectedId:{},
+      fill: "black",
+      textX: 0,
+      textY: 0,
+      textYTextArea: 0,
+      textXTextArea: 0,
+      textValue: "Two clicks to edit1",
+      fontSize: 28,
+      width: 250,
+      y: 100,
+      x: 100,
+      height: 150,
+      fontStyle: "normal",
+      align: "left",
+      id: 0,
+      type: 'text',
+      opacity: 1,
+      offsetY:0,
+      offsetX:0,
+      textTransform:"lowercase",
+       newData:[],
+       bg:`https://www.google.com/url?sa=i&url=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fview&psig=AOvVaw2xsxwNQA-WF5qPtK8JIzHl&ust=1650098942557000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCPCkrNzXlfcCFQAAAAAdAAAAABAD`,
+       qr:false,
        new:true,
        choose:"",
-         number:6,
+         number:2,
          arrayObjectsLayer: [],
          family:["Tahoma","Verdana","Georgia","Times New Roman","Arial","Helvetica","Impact","Courier New","serif","sans-serif","cursive","fantasy","monospace"],
          kanvasWidth: 18.9,
@@ -67,12 +160,46 @@ export class VerticalCard extends Component {
          backgroundOn: true,
          indexTextSelected: 0,
          zoom: 2,
-         selectQr : "1",
+         selectQr : "",
          qremail:"",
         qrtext:"",
         qrnumber:"",
         qrurl:"",
          imgBase64: undefined,
+        rectangles: 
+          [
+            {
+              textX: 0,
+                fill: "black",
+                textY: 0,
+                textValue: "double click to edit and enter to finish",
+                fontSize: 30,
+                width: 400,
+                fontStyle: "normal",
+                align: "left",
+                id:"1",
+                offsetY:0,
+                offsetX:0,
+                textYTextArea: 0,
+                textXTextArea: 0,
+            },
+            {
+              textX: 0,
+                fill: "black",
+                textY: 0,
+                textValue: "double cl",
+                fontSize: 30,
+                width: 400,
+                fontStyle: "normal",
+                align: "left",
+                id:"2",
+                offsetY:0,
+                offsetX:0,
+                textYTextArea: 0,
+                textXTextArea: 0,
+            }
+              ],
+        
          newTextObj: {
            textEditVisible: true,
            fill: "black",
@@ -205,16 +332,70 @@ export class VerticalCard extends Component {
          ]
       }
     }
+    //  handleSave = async () => {
+    //   if (handlers) {
+    //     setSaving(true)
+    //     const exportedTemplate = handlers.templateHandler.exportTemplate()
+    //     const savedTemplate = await api.createTemplate(exportedTemplate)
+    //     setTemplates([...templates, savedTemplate])
+    //     setSaving(false)
+    //   }
+    // }
+
+
+    handleStageMouseDown = e => {
+      console.log(e.target.getStage())
+      const clickedOnEmpty = e.target === e.target.getStage();
+ if (clickedOnEmpty) {
+        this.selectShape(null);
+      }
+
+
+      // clicked on stage - cler selection
+      if (e.target === e.target.getStage()) {
+        this.setState({
+          selectedShapeName: ""
+        });
+        return;
+      }
+      // clicked on transformer - do nothing
+      const clickedOnTransformer =
+        e.target.getParent().className === "Transformer";
+      if (clickedOnTransformer) {
+        return;
+      }
+  
+      // find clicked rect by its name
+      const name = e.target.name();
+      // const rect = this.state.rectangles.find(r => r.name === name);
+      if (name) {
+        this.setState({
+          selectedShapeName: name
+        });
+      } else {
+        this.setState({
+          selectedShapeName: ""
+        });
+      }
+    };
+
+     handleExport = () => {
+      const dataURL  = this.stageRef.current.toDataURL();
+      console.log(dataURL);
+      downloadURI(dataURL, 'stage.png');
+     }
     async componentDidMount() {
-      console.log("Called when component did mount ", this.trRef);
-      console.log("Called when component did mount1 ", this.trRef.current.nodes([this.groupRef.current])); 
-     saveHistory(this.state.arrayObjectsLayer)
+    saveHistory(this.state.arrayObjectsLayer)
       await localStorage.setItem("defaultState", JSON.stringify(this.state));
+      //for localstorage data in to state data
+      const localdata = await localStorage.getItem("stateSaved");
+      this.setState({ newData: localdata })
       const state = await localStorage.getItem("stateSaved");
       if (state) this.setState(JSON.parse(state))
       else this.setState({ selectedObject: this.state.arrayObjectsLayer[0] })
   
     }
+    
     // TEXT EDITOR FUNCTIONALITY
     handleTextDblClick = (e, index) => {
       const absPos = e.target.getAbsolutePosition();
@@ -477,7 +658,6 @@ export class VerticalCard extends Component {
       let selectedObject = newCircleObj;
       arrayObjectsLayer.push(newCircleObj);
       saveHistory(arrayObjectsLayer)
-  
       this.setState({
         arrayObjectsLayer,
         selectedObject
@@ -542,10 +722,14 @@ export class VerticalCard extends Component {
       }
   
       const blob = new Blob(byteArrays, { type: contentType });
+      console.log(blob)
       this.savePng(blob)
     }
+    //if we want to save card in png then use this function
     imageToBlob = () => {
       const { zoom } = this.state
+      console.log("clickex")
+      console.log(zoom)
       this.setState({
         selectedObject: {},
         showBackground: true
@@ -556,10 +740,13 @@ export class VerticalCard extends Component {
         })
         // Split the base64 string in data and contentType
         const block = base64Image.split(";");
+        console.log(block)
         // Get the content type of the image
         const contentType = block[0].split(":")[1];// In this case "image/gif"
+        console.log(contentType)
         // get the real base64 content of the file
         const realData = block[1].split(",")[1];// In this case "R0lGODlhPQBEAPeoAJosM...."
+        console.log(realData)
         this.setState({
           showBackground: false
         })
@@ -569,30 +756,37 @@ export class VerticalCard extends Component {
     }
   
     savePng = async blob => {
+      console.log(blob)
       var formData = new FormData();
       formData.append('profile', 'display')
-      // formData.append('uuid', uuidv1())
       formData.append('filename', `${Math.floor(Math.random() * 1000)}.png`)
       formData.append('totalfilesize', blob.size)
       formData.append('file', blob)
-  console.log(...formData)
-      // fetch(process.env.REACT_APP_IMAGE_UPLOAD, {
+      formData.append('details', JSON.stringify(this.state.arrayObjectsLayer))
+      console.log(...formData)
+      localStorage.setItem("formdata", blob);
+      // fetch('http://localhost:5000/product', {
       //   method: 'POST',
-      //   body: formData
+      //   body:JSON.stringify(formData)
       // })
-      //   .then(response => response.json())
+      //  axios.post(`http://localhost:5000/product`,formData,{ headers: { 'Content-Type':'application/x-www-form-urlencoded'} })
+      //  console.log(formData)
+      //  .then(response => 
+      //     console.log(response))
+      //     // response.json())s
       //   .then(function (json) {
-      //     if (json.success) {
-      //       setTimeout(() => {
-      //         window.open(json.files[0].url, "_blank")
-      //       }, 500);
-      //     }
-      //   },
-      //     error => {
-      //       return error;
-      //     }
-      //   )
-    }
+        //   console.log(json)
+        //   if (json.success) {
+        //     setTimeout(() => {
+        //       window.open(json.files[0].url, "_blank")
+        //     }, 500);
+        //   }
+        // },
+        //   error => {
+        //     return error;
+        //   }
+        // )
+   }
 //--------------COLOR  
 tooglePallet = () => {
   if (this.state.selectedObject)
@@ -675,24 +869,102 @@ handleChange = (e) => {
     [e.target.name]: e.target.value,
   });
 };
+// handleTextEdit = (e, index) => {
+//   let { arrayObjectsLayer } = this.state;
+//   arrayObjectsLayer[index].textValue = e.target.value;
+//   saveHistory(arrayObjectsLayer)
+
+//   this.setState({
+//     arrayObjectsLayer,
+//   });
+// };
+// addNewText = () => {
+//   let { arrayObjectsLayer, newTextObj } = this.state;
+//   newTextObj.id = Math.round(Math.random() * 10000);
+//   arrayObjectsLayer.push(newTextObj);
+//   let selectedObject = newTextObj;
+//   saveHistory(arrayObjectsLayer)
+
+//   this.setState({
+//     arrayObjectsLayer, selectedObject,
+//     number:2
+//   });
+// };
 handleChangeSmart = (e) => {
   console.log(e.target.value)
   this.setState({
     [e.target.name]: e.target.value,
   });
+
 };
 
+saveEverything = async () => {
+  // const result = JSON.stringify(this.state.arrayObjectsLayer);
+  // console.log(result)
+  await localStorage.setItem("stateSaved", JSON.stringify(this.state.arrayObjectsLayer));
+};
+
+deleteSavedState = async () => {
+  console.log("clicked")
+  await localStorage.removeItem("stateSaved");
+  const state = await localStorage.getItem("defaultState");
+  if (state) this.setState(JSON.parse(state));
+};
+
+  // -------------------------------------------------------TEXT EDITOR FUNCTIONALITY
+  handleTextClick = (e, index) => {
+    console.log('selecttext')
+    const absPos = e.target.getAbsolutePosition();
+    const stageBox = this.stageRef.current.container().getBoundingClientRect();
+    let { rectangles } = this.state;
+    rectangles[index].textXTextArea =(stageBox.left + absPos.x + this.containerCanvas.current.scrollLeft) / this.state.zoom;
+    rectangles[index].textYTextArea =stageBox.bottom + absPos.y - stageBox.height + 40 + this.containerCanvas.current.scrollTop;
+    this.setState({
+      rectangles,
+    });
+  };
+  selectText = (selectedId, index = undefined) => {
+    console.log('selecttext')
+    let { rectangles, indexTextSelected } = this.state;
+   if (index) {
+      indexTextSelected = index - 1;
+   } else {
+      if (rectangles[indexTextSelected]) {
+        indexTextSelected = undefined;
+      }
+    }
+    this.setState({
+      selectedId,
+      rectangles,
+      indexTextSelected,
+    });
+  };
+
+  setTextObject = rectangles => {
+    this.setState({
+     rectangles,
+   });
+ };
+ handleTempEdit = (e, index) => {
+  let { rectangles } = this.state;
+  rectangles[index].textValue = e.target.value;
+ this.setState({
+    rectangles,
+  });
+};
   render() {
-    console.log(this.state)
+    console.log( this.state.rectangles)
+    console.log(this.state.choose)
       console.log(this.state.arrayObjectsLayer)
-      console.log(this.state.arrayObjectsLayer.item)
-      console.log(this.state.newTextObj.textValue)
-      const {selectedObject, arrayObjectsLayer, indexTextSelected, showPallet, widthKanvas, heightKanvas, backgroundOn, showBackground,zoom } = this.state;
+     console.log(this.state.newTextObj)
+      console.log(this.state.selectedObject)
+      console.log(this.state.newData)
+      const {selectedObject, arrayObjectsLayer, indexTextSelected, showPallet, widthKanvas, heightKanvas, backgroundOn, showBackground,zoom ,selectedId} = this.state;
       const width = (widthKanvas) / zoom// cm to pixel
       const height = (heightKanvas) / zoom// cm to pixel
   
       const dragHandlers = { onStart: this.onStart, onStop: this.onStop };
-    return (
+   return (
         <div style={{display:"flex"}}>
      
         <div className="back-div-1">
@@ -774,7 +1046,7 @@ handleChangeSmart = (e) => {
        }
       </div>
        
-        <div  className="icon-box-1"  onClick={()=>this.setState({number:7})}>
+        <div  className="icon-box-1"  onClick={()=>this.handleExport()}>
         <div style={{textAlign:"center",backgroundColor:"#FF9900",padding:7,borderRadius:90}}>
         <img src="/images/download.png" style={{width:25,height:25}}/>
         </div>
@@ -782,7 +1054,6 @@ handleChangeSmart = (e) => {
 
    </div> 
 
-{/************************************************************************************************************ */}
   
  {/*********************************TEMPLATE **************************/}
    {this.state.number === 1 &&
@@ -796,7 +1067,7 @@ handleChangeSmart = (e) => {
   <div className='text-editor-start'>
   <div className='text-delete-box'>
     <span style={{color:"#06A8AE"}} onClick={()=>this.addNewText()}>Text</span>
-    <div className='delete-button-text'>
+    <div className='delete-button-text' >
     <DeleteForeverOutlinedIcon style={{color:"red"}}/>
     <span style={{color:"#ffffff"}}>Delete</span>
     </div>
@@ -1079,11 +1350,11 @@ style={
 
 
 
-<div className="text-editor-box">
+<div className="text-editor-box-line-height">
 <img className='img-text' src="/images/editor/A.png" />
 
 {arrayObjectsLayer[indexTextSelected] ? (
-  <select
+  <select className='line-height'
     disabled={!arrayObjectsLayer[indexTextSelected]}
     value={arrayObjectsLayer[indexTextSelected].lineHeight}
     onChange={this.changeLineHeight}
@@ -1218,7 +1489,7 @@ onChange={this.changeOpacity}
 
   <div className='image-delete-box'>
   <span style={{color:"#06A8AE"}}>Image</span>
-  <div className='delete-button-image'>
+  <div className='delete-button-image' onClick={()=>this.setState({selectedObject:""})}>
   <DeleteForeverOutlinedIcon style={{color:"red"}}/>
   <span style={{color:"#ffffff"}}>Delete</span>
   </div>
@@ -1233,28 +1504,11 @@ onChange={this.changeOpacity}
    </button>
    </div>
 <div style={{height:420,marginTop:10,overflowY:"scroll"}}>
-  <div style={{height:"fit-content",display:"flex",flexDirection:"row",flexWrap:"wrap",justifyContent:"space-evenly",}}>
-  <img src= "/images/CardDesign/Vertical/Card1.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card2.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card3.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card4.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card5.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card6.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card7.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card8.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card9.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/card10.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card11.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card12.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card13.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card14.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card15.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card16.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card17.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card18.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/Card19.jpg"  className='image2-vertical' />
-      <img src= "/images/CardDesign/Vertical/card20.jpg"  className='image2-vertical' />
-
+  <div style={{height:"fit-content",display:"flex",flexDirection:"row",flexWrap:"wrap",justifyContent:"space-between",}}>
+  {this.state.imagesrc.map(image=> (
+  <img key={image.id} src= {image.src}  className="image1" />
+ 
+  ))}
 </div>
 </div>
 <div className='apply-button-div-image'>
@@ -1268,7 +1522,7 @@ onChange={this.changeOpacity}
    {this.state.number === 4 &&
     <div className='qr-editor-start'>
     <div className='qr-delete-box'>
-    <span style={{color:"#06A8AE"}}>QR Code</span>
+    <span style={{color:"#06A8AE"}} onClick={()=>this.setState({selectQr:"0"})}>QR Code</span>
     <div className='delete-button-qr'>
     <DeleteForeverOutlinedIcon style={{color:"red"}}/>
     <span style={{color:"#ffffff"}}>Delete</span>
@@ -1408,9 +1662,10 @@ onChange={this.changeOpacity}
  </div>
   <div className='input-class-smart'>
 <select className='text-field-smart' name='choose' value={this.state.choose} onChange={this.handleChangeSmart}>
-<option value="Firstname">First Name</option>
-<option value="LastName">Last Name</option>
-<option value="NickName">Nick Name</option>
+<option value="{Fname}">First Name</option>
+<option value="{Lname}">Last Name</option>
+<option value="{Nname}">Nick Name</option>
+<option value="{empId}">Employee Id</option>
 </select>
 <div className='smart-field-icon-right'>
 <AddSharpIcon  style={{color:"white"}}/>
@@ -1456,7 +1711,7 @@ onChange={this.changeOpacity}
  
 <div className='navbar-div-image'>
 
-     <div className='navbar-div-saved-card-image'    onClick={this.imageToBlob}>
+  <div className='navbar-div-saved-card-image'    onClick={this.imageToBlob}>
    <ContactsIcon className='icon-image-navbar'/>
    <span className='icon-navbar'>Saved Card</span>
    </div>
@@ -1473,7 +1728,7 @@ onChange={this.changeOpacity}
 
 <div  style={{display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:10,flexWrap:"nowrap",cursor:"pointer"}}>
 <TagIcon className='icon-image-navbar'/>
-<span className='icon-navbar'>Guide</span>
+<span className='icon-navbar'  onClick={this.deleteSavedState}>Guide</span>
 </div>
 
 <div  style={{display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",padding:10,flexWrap:"nowrap",cursor:"pointer"}}>
@@ -1493,7 +1748,7 @@ onChange={this.changeOpacity}
 
 </div>
 
-<div onClick={()=>this.setState({arrayObjectsLayer: []})} style={{display:"flex",justifyContent:"center",alignItems:"center",background: "#FC4646",width:"15%",cursor:"pointer"}}>
+<div onClick={()=>this.setState({arrayObjectsLayer: [],qremail:"",qrnumber:"",qrtext:"",qrurl:"",selectQr:"",choose:""})} style={{display:"flex",justifyContent:"center",alignItems:"center",background: "#FC4646",width:"15%",cursor:"pointer"}}>
 <DeleteForeverOutlinedIcon style={{color:"white"}}/>
 <span className='icon-navbar'>Delete Card</span>
 </div>
@@ -1509,26 +1764,93 @@ onChange={this.changeOpacity}
   </div>
 
 {/**************************CANVAS */}
-<div className="containerCanvas" ref={this.containerCanvas} onClick={(e)=>this.setState({new:false})}>
+<div className="containerCanvas" ref={this.containerCanvas} >
 <div className={`container-area`}>
+{/***
+<textarea
+// key={index}
+value={this.state.rectangles.textValue} 
+onChange={e => this.handleTempEdit(e)}
+type="text"
+placeholder='Enter text' rows="6" cols="30"
+className='text-field-text'
+/>
+* */}
+
+
 <Stage
   scaleY={1 / zoom}
   scaleX={1 / zoom}
   ref={this.stageRef}
   width={width}
   height={height}
-  onMouseDown={e => {
-    // deselect when clicked on empty area
-    console.log(e.target)
-    console.log(e.target.getStage())
-    const clickedOnEmpty = e.target === e.target.getStage();
-    if (clickedOnEmpty) {
-      this.selectShape(null);
-    }
-  }}
+  onMouseDown={this.handleStageMouseDown}
 >
 
 <Layer>
+
+          <Group
+            name="group"
+            x={225}
+            y={295}
+            width={110}
+            height={400}
+            fill="red"
+            draggable
+          >
+       
+          <Text
+              name="text"
+              fontSize={30}
+              fontFamily="Calibri"
+              fill="#555"
+              width={100}
+              padding={15}
+              align="center"
+              text={this.state.choose}
+            />
+            <Html divProps={{ style: { pointerEvents: "none" } }}>
+            <div style={{marginTop:20}}>
+            {this.state.selectQr === "0" && <QRCode value={this.state.qremail} size="90"/>}
+            {this.state.selectQr === "1" && <QRCode value={this.state.qremail} size="90"/>}
+            {this.state.selectQr === "2" && <QRCode value={this.state.qrtext} size="90"/>}  
+            {this.state.selectQr === "3" && <QRCode value={this.state.qrnumber} size="90"/>}  
+            {this.state.selectQr === "4" && <QRCode value={this.state.qrurl} size="90"/>}  
+            </div>
+            </Html>
+        </Group>
+          <TransformerComponent
+          selectedShapeName={this.state.selectedShapeName}
+        />   
+        
+  
+
+{/****** 
+{  
+  
+  this.state.rectangles && this.state.rectangles.map((rect, index) => {
+  return (
+   <Transformtext
+      key={index}
+       onSelect={() => {
+        this.selectText(rect.id);
+      }}
+      shapeProps={rect}
+      isSelected={rect.id === selectedId}
+      handleTextDblClick={e =>
+      this.handleTextClick(e, index)
+        }
+       onChange={(newAttrs) => {
+        const rects = this.state.rectangles.slice();
+        rects[index] = newAttrs;
+        // this.ectangles(rects);
+        this.setArrayObject(rects);
+      }}
+     
+    />
+  );
+})}
+*/}
 {
   arrayObjectsLayer &&
   arrayObjectsLayer.map((item, index) => {
@@ -1643,8 +1965,11 @@ onChange={this.changeOpacity}
                   selectedObject && item.id === selectedObject.id
                 }
                 onSelect={() => {
-                  this.selectShape(item);
+                  this.selectShape(item, index + 1)
                 }}
+                handleTextDblClick={e =>
+                  this.handleTextDblClick(e, index)
+                }
                 onChange={newAttrs => {
                   const item = arrayObjectsLayer.slice();
                   item[index] = newAttrs;
@@ -1670,7 +1995,7 @@ onChange={this.changeOpacity}
                     item[index] = newAttrs;
                     this.setArrayObject(item);
                   }}
-                  // onChange={e => this.handleTextEdit(e, index)}
+              
                 />
                 :
                 false
@@ -1679,10 +2004,16 @@ onChange={this.changeOpacity}
   )
 }
 
-{/***** 
-<Group ref={this.groupRef} draggable x={50} y={100}>
+
+ 
+
+
+
+ {/*********
+ <Group ref={this.groupRef} draggable x={50} y={100}>
 <Html divProps={{ style: {} }}>
-<div style={{marginTop:60}}>
+
+<div style={{marginTop:60 }}>
  {this.state.selectQr === "1" && <QRCode value={this.state.qremail} />}
  {this.state.selectQr === "2" && <QRCode value={this.state.qrtext} />}  
  {this.state.selectQr === "3" && <QRCode value={this.state.qrnumber} />}  
@@ -1691,8 +2022,8 @@ onChange={this.changeOpacity}
 </Html>
 <Rect width={280} height={300} fill="" />
 </Group>
-<Transformer ref={this.trRef} />
 
+ <Transformer ref={this.trRef} />
 <Group ref={this.groupRef} draggable x={50} y={100}>
 <Html divProps={{ style: {} }}>
 <div style={{marginTop:30,border:"2px soild red"}} onClick={(e)=>this.setState({new:true})}>
@@ -1704,25 +2035,21 @@ onChange={this.changeOpacity}
 <Rect width={150} height={50} fill="" />
 </Group>
 <Transformer ref={this.trRef} rotateEnabled={this.state.new === true ? true : false}  resizeEnabled={this.state.new === true ? true : false}/> 
- */}
+  */}
 </Layer>
 
 </Stage>
 </div>
 </div>
 
-
-
 {/**div end */}
   </div>
  }
-
-
-
-
-        </div>
+  </div>
     )
   }
 }
 
 export default VerticalCard
+
+
